@@ -8,7 +8,7 @@ const Person = require('./models/phonebook')
 app.use(cors())
 app.use(express.json())
 
-morgan.token('data', function (req, res) { return JSON.stringify(req.body) })
+morgan.token('data', function (req) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data'))
 
 app.use(express.static('dist'))
@@ -28,11 +28,11 @@ const errorHandle = (error, request, response, next) => {
   next(error)
 }
 
-app.get('/', (request, response) => {
+app.get('/', (_request, response) => {
   response.send('<h1>exercises backend with nodejs and express</h1>')
 })
 
-app.get('/info', (request, response, next) => {
+app.get('/info', (_request, response, next) => {
   Person.countDocuments({})
     .then(info => {
       const personsLength = info
@@ -43,7 +43,7 @@ app.get('/info', (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.get('/api/persons', (request, response) => {
+app.get('/api/persons', (_request, response) => {
   Person.find({}).then(phonebook => {
     response.json(phonebook)
   })
@@ -65,7 +65,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-    .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))
