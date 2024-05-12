@@ -1,18 +1,5 @@
 const mongoose = require('mongoose')
-const config = require('../utils/configs')
 
-mongoose.set('strictQuery', false)
-
-const url = config.MONGODB_URI
-
-console.log('start connecting to mongoDB')
-mongoose.connect(url)
-  .then(() => {
-    console.log('connected to MongoDB.')
-  })
-  .catch((error) => {
-    console.log('error connecting to MongoDB', error.message)
-  })
 
 const phonebookSchema = new mongoose.Schema({
   name: {
