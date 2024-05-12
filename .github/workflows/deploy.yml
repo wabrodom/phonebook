@@ -1,12 +1,12 @@
 name:  Deployment pipeline
 
 on: 
-  push:
-    branches:
-      - main
-  # pull_request:
-  #   branches: [main]
-  #   types: [opened, synchronize]
+  # push:
+  #   branches:
+  #     - main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
 
 env: 
   PR_ISMERGED: ${{ github.event_name == 'push' }}
