@@ -1,0 +1,18 @@
+POST http://localhost:3001/api/persons/
+Content-Type: application/json
+
+{
+  "name": "autta",
+  "number": "021-43123",
+  "userId": "6641d03ade88334078b86005"
+}
+
+###
+POST http://localhost:3001/api/persons/
+Content-Type: application/json
+
+{
+  "name": "greasy",
+  "number": "023-43123",
+  "userId": "6641d03ade88334078b86005"
+}

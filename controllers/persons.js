@@ -1,6 +1,6 @@
 const personRouter = require('express').Router()
 const Person = require('../models/phonebook')
-
+const User = require('../models/user')
 
 personRouter.get('/info', (_request, response, next) => {
   Person.countDocuments({})
@@ -13,10 +13,13 @@ personRouter.get('/info', (_request, response, next) => {
     .catch(error => next(error))
 })
 
-personRouter.get('/', (_request, response) => {
-  Person.find({}).then(phonebook => {
+personRouter.get('/', (_request, response, next) => {
+  Person
+  .find({}).populate('user', { username: 1, name: 1})
+  .then(phonebook => {
     response.json(phonebook)
   })
+  .catch(error => next(error)) 
 })
 
 personRouter.get('/:id', (request, response, next) => {
@@ -43,11 +46,11 @@ personRouter.delete('/:id', async (request, response, next) => {
 })
 
 
-personRouter.post('/', (request, response, next) => {
-  const body = request.body
-  const name = body.name
-  const number = body.number
+personRouter.post('/',  async (request, response, next) => {
+  const { name, number, userId } = request.body
 
+  const user = await User.findById(userId)
+  
   if (!name || !number) {
     return response.status(400).json({
       error: '400 Bad Request: name or number are missing',
@@ -55,15 +58,20 @@ personRouter.post('/', (request, response, next) => {
   }
 
   const newPerson = new Person({
-    name: body.name,
-    number: body.number,
+    name: name,
+    number: number,
+    user: user.id
   })
 
-  newPerson.save()
-    .then(returnedPerson => {
-      response.status(201).json(returnedPerson)
-    })
-    .catch(error => next(error))
+  try {
+    const returnedPerson = await newPerson.save()
+    user.phonebook = user.phonebook.concat(returnedPerson._id)
+    await user.save()
+
+    return response.status(201).json(returnedPerson)
+  } catch (error) {
+    next(error)
+  }
 
 })
 
