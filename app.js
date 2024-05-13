@@ -4,7 +4,7 @@ const configs = require('./utils/configs')
 const morgan = require('morgan')
 const cors = require('cors')
 const app = express()
-const personRouter = require('./controllers/person')
+const personRouter = require('./controllers/persons')
 const middleware = require('./utils/middleware')
 
 mongoose.connect(configs.MONGODB_URI)

@@ -33,12 +33,13 @@ personRouter.get('/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-personRouter.delete('/:id', (request, response, next) => {
-  Person.findByIdAndDelete(request.params.id)
-    .then(() => {
-      response.status(204).end()
-    })
-    .catch(error => next(error))
+personRouter.delete('/:id', async (request, response, next) => {
+  try {
+    await Person.findByIdAndDelete(request.params.id)
+    response.status(204).end()
+  } catch(exception) {
+    next(exception)
+  }
 })
 
 
@@ -60,7 +61,7 @@ personRouter.post('/', (request, response, next) => {
 
   newPerson.save()
     .then(returnedPerson => {
-      response.json(returnedPerson)
+      response.status(201).json(returnedPerson)
     })
     .catch(error => next(error))
 
