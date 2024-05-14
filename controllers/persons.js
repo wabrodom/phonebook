@@ -1,7 +1,5 @@
 const personRouter = require('express').Router()
-const jwt = require('jsonwebtoken')
 const Person = require('../models/phonebook')
-const User = require('../models/user')
 const middleware = require('../utils/middleware')
 
 personRouter.get('/info', (_request, response, next) => {
@@ -53,7 +51,6 @@ personRouter.post('/', middleware.userExtracter ,  async (request, response, nex
 
   try {
     const user = request.user
-    console.log('hereeeee', user)
 
     if (user === null) {
       return response.status(400).json({

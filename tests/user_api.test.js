@@ -124,15 +124,15 @@ describe.only('when user have valid token or invalid token', () => {
     }
 
     const authorizationStr =  'bearer ' + userObjectWithToken.body.token
-    console.log(authorizationStr)
+
     await api.post('/api/persons')
       .set({ Authorization: authorizationStr })
       .send(newPerson)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    const blogsAtEnd = await helper.blogsInDb()
-    const names = blogsAtEnd.map(b => b.name)
+    const personsAtEnd = await helper.personsInDb()
+    const names = personsAtEnd.map(b => b.name)
     assert(names.includes('jojo'))
   })
 
