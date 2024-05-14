@@ -1,3 +1,5 @@
+const helper = require('./helper')
+
 const errorHandler = (error, request, response, next) => {
   // console.log("middleware catch an error", JSON.stringify(error, 0, 2))
 
@@ -21,7 +23,20 @@ const errorHandler = (error, request, response, next) => {
 }
 
 
+const tokenExtracter = (request, response ,next) => {
+  request.token = helper.getTokenFrom(request)
+  next()
+}
+
+const userExtracter =  async (request, response, next) => {
+  request.user = await helper.decodedTokenGetUser(request, response, next)
+  next()
+}
+
+
 
 module.exports = {
-  errorHandler
+  errorHandler,
+  tokenExtracter,
+  userExtracter
 }

@@ -1,6 +1,8 @@
 const personRouter = require('express').Router()
+const jwt = require('jsonwebtoken')
 const Person = require('../models/phonebook')
 const User = require('../models/user')
+const middleware = require('../utils/middleware')
 
 personRouter.get('/info', (_request, response, next) => {
   Person.countDocuments({})
@@ -15,11 +17,11 @@ personRouter.get('/info', (_request, response, next) => {
 
 personRouter.get('/', (_request, response, next) => {
   Person
-  .find({}).populate('user', { username: 1, name: 1})
-  .then(phonebook => {
-    response.json(phonebook)
-  })
-  .catch(error => next(error)) 
+    .find({}).populate('user', { username: 1, name: 1 })
+    .then(phonebook => {
+      response.json(phonebook)
+    })
+    .catch(error => next(error))
 })
 
 personRouter.get('/:id', (request, response, next) => {
@@ -46,31 +48,36 @@ personRouter.delete('/:id', async (request, response, next) => {
 })
 
 
-personRouter.post('/',  async (request, response, next) => {
-  const { name, number, userId } = request.body
-
-  const user = await User.findById(userId)
-  
-  if (!name || !number) {
-    return response.status(400).json({
-      error: '400 Bad Request: name or number are missing',
-    })
-  }
-
-  const newPerson = new Person({
-    name: name,
-    number: number,
-    user: user.id
-  })
+personRouter.post('/', middleware.userExtracter ,  async (request, response, next) => {
+  const { name, number } = request.body
 
   try {
-    const returnedPerson = await newPerson.save()
-    user.phonebook = user.phonebook.concat(returnedPerson._id)
+    const user = request.user
+    console.log('hereeeee', user)
+
+    if (user === null) {
+      return response.status(400).json({
+        error: 'the user id is not found.'
+      })
+    }
+
+    const newPerson = new Person({
+      name,
+      number,
+      user: user._id
+    })
+
+    const savedPerson = await newPerson.save()
+    user.phonebook = user.phonebook.concat(savedPerson._id)
     await user.save()
 
-    return response.status(201).json(returnedPerson)
-  } catch (error) {
-    next(error)
+    const populatedPerson = await savedPerson.populate('user', { name: 1, username:1 })
+
+    response.statusCode = 201
+    response.json(populatedPerson)
+
+  } catch(exception) {
+    next(exception)
   }
 
 })

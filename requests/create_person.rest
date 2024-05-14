@@ -1,7 +1,8 @@
 POST http://localhost:3001/api/persons/
 Content-Type:application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RlciIsImlkIjoiNjY0MWZiMmMwNWFmNWJjNWQyMmUxMzE4IiwiaWF0IjoxNzE1NjAyNTI4fQ.ABDBBjcXSCl7Z2fJ6fOwIDkMc1yOIpNUsVt_yw5kFXI
 
 {
-    "name": "Boss",
+    "name": "Bossado",
     "number": "09-123456"
 }

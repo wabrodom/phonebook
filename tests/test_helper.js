@@ -34,8 +34,8 @@ const usersInDb = async () => {
 }
 
 module.exports = {
-  initialPersons, 
-  nonExistingId, 
-  personsInDb, 
+  initialPersons,
+  nonExistingId,
+  personsInDb,
   usersInDb,
 }
