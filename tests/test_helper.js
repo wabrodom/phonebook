@@ -1,4 +1,4 @@
-const Person = require('../models/phonebook')
+const Person = require('../models/person')
 const User = require('../models/user')
 
 const initialPersons = [

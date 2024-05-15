@@ -7,6 +7,7 @@ const app = require('../app')
 
 const bcrypt = require('bcrypt')
 const User = require('../models/user')
+const Person = require('../models/person')
 
 const api = supertest(app)
 
@@ -81,6 +82,7 @@ describe('when there is one user in db', () => {
 describe.only('when user have valid token or invalid token', () => {
   beforeEach( async () => {
     await User.deleteMany({})
+    await Person.deleteMany({})
 
     const passwordHash = await bcrypt.hash('somePassword', 10)
     const user = new User({
@@ -136,45 +138,46 @@ describe.only('when user have valid token or invalid token', () => {
     assert(names.includes('jojo'))
   })
 
-  // test('only user who create blog will be able to delete the blog', async() => {
+  test.only('only user who create personIfo will delete the peronsInfo', async() => {
 
-  //   const userObjectWithToken = await api
-  //     .post('/api/login')
-  //     .send(userLoginInfo)
-  //     .expect(200)
-  //     .expect('Content-Type', /application\/json/)
+    const userObjectWithToken = await api
+      .post('/api/login')
+      .send(userLoginInfo)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
 
-  //   const token =  'bearer ' + userObjectWithToken.body.token
-  //   const authorization = { Authorization : token }
+    const token =  'bearer ' + userObjectWithToken.body.token
+    const authorization = { Authorization : token }
 
-  //   const newBlog = {
-  //     'title': 'this blog will be deleted',
-  //     'author': 'bombom',
-  //     'url': 'https://adamgrant.net/'
-  //   }
+    const newPerson = {
+      'name': 'jojo',
+      'number': '088-12345678',
+    }
 
-  //   const response = await api
-  //     .post('/api/blogs')
-  //     .set(authorization)
-  //     .send(newBlog)
-  //     .expect(201)
-  //     .expect('Content-Type', /application\/json/)
+    const response = await api
+      .post('/api/persons')
+      .set(authorization)
+      .send(newPerson)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
 
-  //   const blogsAfterAddOne = await helper.blogsInDb()
+    const blogsAfterAddOne = await helper.personsInDb()
 
-  //   const returnedBlog = response.body
+    const returnedPerson = response.body
 
-  //   expect()
-  //   await api
-  //     .delete(`/api/blogs/${returnedBlog.id.toString()}`)
-  //     .set(authorization)
-  //     .expect(204)
-  //   const blogsAfterDelete = await helper.blogsInDb()
-  //   const titles = blogsAfterDelete.map(b => b.title)
+    await api
+      .delete(`/api/persons/${returnedPerson.id.toString()}`)
+      .set(authorization)
+      .expect(204)
 
-  //   expect(blogsAfterDelete).toHaveLength(blogsAfterAddOne.length -1)
-  //   expect(titles).not.toContain(newBlog.title)
-  // })
+    const personsAfterDelete = await helper.personsInDb()
+    const names = personsAfterDelete.map(p => p.name)
+    console.log('names arr', names)
+
+    assert.strictEqual(personsAfterDelete.length, blogsAfterAddOne.length - 1)
+    // assert.strictEqual(names.includes(newPerson.name), false)
+
+  })
 
 })
 

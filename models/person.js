@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 
-const phonebookSchema = new mongoose.Schema({
+const personSchema = new mongoose.Schema({
   name: {
     type: String,
     minLength: 3,
@@ -27,12 +27,12 @@ const phonebookSchema = new mongoose.Schema({
     required: true,
   },
   user: {
-    type: mongoose.Schema.Types.ObjectId,  
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }
 })
 
-phonebookSchema.set('toJSON', {
+personSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString()
     delete returnedObject._id
@@ -40,4 +40,4 @@ phonebookSchema.set('toJSON', {
   }
 })
 
-module.exports = mongoose.model('Person', phonebookSchema)
+module.exports = mongoose.model('Person', personSchema)

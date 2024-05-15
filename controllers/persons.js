@@ -1,5 +1,5 @@
 const personRouter = require('express').Router()
-const Person = require('../models/phonebook')
+const Person = require('../models/person')
 const middleware = require('../utils/middleware')
 
 personRouter.get('/info', (_request, response, next) => {
@@ -36,10 +36,33 @@ personRouter.get('/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-personRouter.delete('/:id', async (request, response, next) => {
+personRouter.delete('/:id', middleware.userExtracter ,async (request, response, next) => {
+  const personId = request.params.id
   try {
-    await Person.findByIdAndDelete(request.params.id)
-    response.status(204).end()
+    const user = request.user
+
+    if (user === null) {
+      return response.status(400).json({
+        error: 'Bad request. The user id is not found.'
+      })
+    }
+
+    const foundPerson = await Person.findById(personId)
+
+    if (foundPerson.user._id.toString() === user._id.toString()) {
+      const deletePerson = await Person.findByIdAndDelete(personId)
+      user.phonebook = user.phonebook.filter(personId => {
+        personId.toString() !== deletePerson._id.toString()
+      })
+
+      await user.save()
+      return response.status(204).end()
+    }
+    else {
+      return response.status(400).json({
+        error: 'Bad request. The user is not added this person'
+      })
+    }
   } catch(exception) {
     next(exception)
   }
