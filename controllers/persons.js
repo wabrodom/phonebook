@@ -75,10 +75,13 @@ personRouter.post('/', middleware.userExtracter ,  async (request, response, nex
   try {
     const user = request.user
 
-    if (user === null) {
+    if (user === null ) {
       return response.status(400).json({
         error: 'the user id is not found.'
       })
+    }
+    if (user.phonebook === undefined) {
+      return;
     }
 
     const newPerson = new Person({

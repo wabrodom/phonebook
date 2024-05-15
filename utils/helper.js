@@ -21,14 +21,12 @@ const decodedTokenGetUser = async (request, response, next) => {
 
     const user = await User.findById(decodedToken.id)
     return user
-
-  }
-
-  catch(error) {
+  } catch(error) {
     if (error.name === 'JsonWebTokenError') {
       // console.log('In case of JsonWebTokenError this will logged')
       return response.status(401).json({
-        error: error.message
+        error: error.message,
+        unicorn: 'something unicorn'
       })
     }
     next(error)

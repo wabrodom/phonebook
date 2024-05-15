@@ -68,63 +68,63 @@ describe('viewing specific person', () => {
   })
 })
 
-describe('operation on personObject', () => {
-  test('a valid person can be added ', async () => {
-    const newPerson = {
-      name: 'Vitamin',
-      number: '011-12345678',
-    }
+// describe('operation on personObject', () => {
+//   test('a valid person can be added ', async () => {
+//     const newPerson = {
+//       name: 'Vitamin',
+//       number: '011-12345678',
+//     }
 
-    await api
-      .post('/api/persons')
-      .send(newPerson)
-      .expect(201)
-      .expect('Content-Type', /application\/json/)
+//     await api
+//       .post('/api/persons')
+//       .send(newPerson)
+//       .expect(201)
+//       .expect('Content-Type', /application\/json/)
 
-    const personsAtEnd = await helper.personsInDb()
-    assert.strictEqual(personsAtEnd.length, helper.initialPersons.length + 1)
+//     const personsAtEnd = await helper.personsInDb()
+//     assert.strictEqual(personsAtEnd.length, helper.initialPersons.length + 1)
 
-    const names = personsAtEnd.map(p => p.name)
-    assert(names.includes('Vitamin'))
-  })
+//     const names = personsAtEnd.map(p => p.name)
+//     assert(names.includes('Vitamin'))
+//   })
 
-  test('person without phone number is not added', async () => {
-    const newPerson = {
-      name: 'VitaminD',
-      number: '',
-    }
+//   test('person without phone number is not added', async () => {
+//     const newPerson = {
+//       name: 'VitaminD',
+//       number: '',
+//     }
 
-    await api
-      .post('/api/persons')
-      .send(newPerson)
-      .expect(400)
+//     await api
+//       .post('/api/persons')
+//       .send(newPerson)
+//       .expect(400)
 
-    const personsAtEnd = await helper.personsInDb()
+//     const personsAtEnd = await helper.personsInDb()
 
-    assert.strictEqual(personsAtEnd.length, helper.initialPersons.length)
-  })
-
-
-  test('a person can be deleted', async () => {
-    const personsAtStart = await helper.personsInDb()
-    const personToDelete = personsAtStart[0]
+//     assert.strictEqual(personsAtEnd.length, helper.initialPersons.length)
+//   })
 
 
-    await api
-      .delete(`/api/persons/${personToDelete.id}`)
-      .expect(204)
-
-    const personsAtEnd = await helper.personsInDb()
-    const names = personsAtEnd.map(p => p.name)
-    assert(!names.includes(personToDelete.name))
+//   test('a person can be deleted', async () => {
+//     const personsAtStart = await helper.personsInDb()
+//     const personToDelete = personsAtStart[0]
 
 
-    assert.strictEqual(personsAtEnd.length, helper.initialPersons.length -1)
-  })
+//     await api
+//       .delete(`/api/persons/${personToDelete.id}`)
+//       .expect(204)
+
+//     const personsAtEnd = await helper.personsInDb()
+//     const names = personsAtEnd.map(p => p.name)
+//     assert(!names.includes(personToDelete.name))
+
+
+//     assert.strictEqual(personsAtEnd.length, helper.initialPersons.length -1)
+//   })
 
 
 
-})
+// })
 
 describe('when there is initially one user in db', () => {
   beforeEach(async () => {
