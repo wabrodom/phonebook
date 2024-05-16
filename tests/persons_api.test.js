@@ -118,7 +118,8 @@ describe('GET request: only the login user will...', () => {
     // make sure it return 1st person
     const firstPersonId = returnedPersons[0].id
 
-    const responseForFirstPerson = await api.get(`/api/persons/${firstPersonId}`)
+    const responseForFirstPerson = await api
+      .get(`/api/persons/${firstPersonId}`)
       .set(authorization)
       .expect(200)
       .expect('Content-Type', /application\/json/)
@@ -200,9 +201,8 @@ describe.only('when user have valid token or invalid token', () => {
     assert(names.includes('jojo'))
   })
 
-  test.only('only user who create personIfo will delete the peronsInfo', async() => {
+  test('only user who create personIfo will delete the peronsInfo', async() => {
     const token = await helper.loginGetAuthorizationStr(userLoginInfo)
-
     const authorization = { Authorization : token }
 
     const newPerson = {
@@ -233,6 +233,43 @@ describe.only('when user have valid token or invalid token', () => {
     assert.strictEqual(personsAfterDelete.length, blogsAfterAddOne.length - 1)
     assert.strictEqual(names.includes(newPerson.name), false)
 
+  })
+
+  test.only('can update the document object by created user', async () => {
+    const token = await helper.loginGetAuthorizationStr(userLoginInfo)
+    const authorization = { Authorization : token }
+
+    const newPerson = {
+      'name': 'jojo',
+      'number': '088-12345678',
+      'note': 'last talk about lat strength, and his backpain'
+    }
+    // post new person to they list
+    const response = await api
+      .post('/api/persons')
+      .set(authorization)
+      .send(newPerson)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const returnedPerson = response.body
+
+    const modifiedObject = {
+      'name': 'Jonathan',
+      'number': '088-12345678',
+    }
+
+    const modifiedVersion = await api
+      .put(`/api/persons/${returnedPerson.id.toString()}`)
+      .set(authorization)
+      .send(modifiedObject)
+      .expect(200)
+
+    const personsAfterUpdated = modifiedVersion.body
+    // console.log('before', newPerson)
+    // console.log('after', personsAfterUpdated)
+    assert.strictEqual(personsAfterUpdated.name, modifiedObject.name)
+    assert.strictEqual(personsAfterUpdated.note, newPerson.note)
   })
 
 })

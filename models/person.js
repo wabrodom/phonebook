@@ -26,6 +26,10 @@ const personSchema = new mongoose.Schema({
     },
     required: true,
   },
+  note: {
+    type: String,
+    maxLength: 280
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'

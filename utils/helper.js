@@ -17,7 +17,7 @@ const decodedTokenGetUser = async (request, response, next) => {
     if (!decodedToken.id) {
       // never reach because jws.verify will return its 401 response Unauthorized
       // we get response object return, so work around by check if it has object key
-      // if not return nothing to client
+      // if not. should return nothing to client
       return response.status(401).json({ error: 'invalid token...' })
     }
 
@@ -26,9 +26,11 @@ const decodedTokenGetUser = async (request, response, next) => {
   } catch(error) {
     if (error.name === 'JsonWebTokenError') {
       // console.log('In case of JsonWebTokenError this will logged')
+      // when jsonwebtoken is thrown, because no token attach to request
+      // we can stated that user is not logged in
       return response.status(401).json({
-        error: error.message,
-        unicorn: 'something unicorn'
+        error: 'user is not logged in'
+        // error: error.message,
       })
     }
     next(error)

@@ -16,6 +16,10 @@ personRouter.get('/info', (_request, response, next) => {
 personRouter.get('/', middleware.userExtracter, (request, response, next) => {
   const user = request.user
 
+  if (user.phonebook === undefined) {
+    return
+  }
+
   Person
     .find({ user:  user._id  })
     .populate('user', { username: 1, name: 1 })
@@ -28,6 +32,7 @@ personRouter.get('/', middleware.userExtracter, (request, response, next) => {
 personRouter.get('/:id', middleware.userExtracter, async (request, response, next) => {
   const personId = request.params.id
 
+
   try {
     const user = request.user
 
@@ -37,9 +42,15 @@ personRouter.get('/:id', middleware.userExtracter, async (request, response, nex
       })
     }
 
-    const foundPerson = await Person.findById(personId)
+    if (user.phonebook === undefined) {
+      return
+    }
 
-    if (foundPerson.user.toString() === user._id.toString()) {
+    const foundPerson = await Person
+      .findById(personId)
+      .populate('user', { username: 1, name: 1 })
+
+    if (foundPerson.user._id.toString() === user._id.toString()) {
       return response.status(200).json(foundPerson)
     } else {
       response.statusCode = 404
@@ -60,6 +71,10 @@ personRouter.delete('/:id', middleware.userExtracter ,async (request, response, 
       return response.status(400).json({
         error: 'Bad request. The user id is not found.'
       })
+    }
+
+    if (user.phonebook === undefined) {
+      return
     }
 
     const foundPerson = await Person.findById(personId)
@@ -85,7 +100,7 @@ personRouter.delete('/:id', middleware.userExtracter ,async (request, response, 
 
 
 personRouter.post('/', middleware.userExtracter ,  async (request, response, next) => {
-  const { name, number } = request.body
+  const { name, number, note } = request.body
 
   try {
     const user = request.user
@@ -97,13 +112,13 @@ personRouter.post('/', middleware.userExtracter ,  async (request, response, nex
     }
     // in case of got response from jwt.verify throw, has to filter out these action
     if (user.phonebook === undefined) {
-      // console.log(user)
       return
     }
 
     const newPerson = new Person({
       name,
       number,
+      note: !note ? '' : note,
       user: user._id
     })
 
@@ -122,20 +137,35 @@ personRouter.post('/', middleware.userExtracter ,  async (request, response, nex
 
 })
 
-personRouter.put('/:id', (request, response, next) => {
+personRouter.put('/:id', middleware.userExtracter, (request, response, next) => {
   const body = request.body
+
+  const user = request.user
+
+  if (user === null ) {
+    return response.status(400).json({
+      error: 'the user id is not found.'
+    })
+  }
+
+  if (user.phonebook === undefined) return
 
   const updatePerson = {
     name: body.name,
     number: body.number,
   }
+
+  if (body.note) {
+    updatePerson.note = body.note
+  }
+
   Person.findByIdAndUpdate(
     request.params.id,
     updatePerson,
     { new : true, runValidators: true, context: 'query' }
   )
     .then(updatedPerson => {
-      response.json(updatedPerson)
+      response.status(200).json(updatedPerson)
     })
     .catch(error => next(error))
 })
