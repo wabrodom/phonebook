@@ -13,27 +13,42 @@ personRouter.get('/info', (_request, response, next) => {
     .catch(error => next(error))
 })
 
-personRouter.get('/', (_request, response, next) => {
+personRouter.get('/', middleware.userExtracter, (request, response, next) => {
+  const user = request.user
+
   Person
-    .find({}).populate('user', { username: 1, name: 1 })
+    .find({ user:  user._id  })
+    .populate('user', { username: 1, name: 1 })
     .then(phonebook => {
       response.json(phonebook)
     })
     .catch(error => next(error))
 })
 
-personRouter.get('/:id', (request, response, next) => {
-  Person.findById(request.params.id)
-    .then(foundPerson => {
-      if (foundPerson) {
-        return response.json(foundPerson)
-      } else {
-        response.statusCode = 404
-        response.statusMessage = 'Not found person identifier'
-        response.send('not found the person')
-      }
-    })
-    .catch(error => next(error))
+personRouter.get('/:id', middleware.userExtracter, async (request, response, next) => {
+  const personId = request.params.id
+
+  try {
+    const user = request.user
+
+    if (user === null) {
+      return response.status(400).json({
+        error: 'Bad request. The user id is not found.'
+      })
+    }
+
+    const foundPerson = await Person.findById(personId)
+
+    if (foundPerson.user.toString() === user._id.toString()) {
+      return response.status(200).json(foundPerson)
+    } else {
+      response.statusCode = 404
+      response.statusMessage = 'Not found person identifier'
+      response.send('not found the person')
+    }
+  } catch (error) {
+    next(error)
+  }
 })
 
 personRouter.delete('/:id', middleware.userExtracter ,async (request, response, next) => {
@@ -80,8 +95,10 @@ personRouter.post('/', middleware.userExtracter ,  async (request, response, nex
         error: 'the user id is not found.'
       })
     }
+    // in case of got response from jwt.verify throw, has to filter out these action
     if (user.phonebook === undefined) {
-      return;
+      // console.log(user)
+      return
     }
 
     const newPerson = new Person({

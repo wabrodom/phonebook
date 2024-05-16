@@ -1,5 +1,9 @@
 const Person = require('../models/person')
 const User = require('../models/user')
+const supertest = require('supertest')
+const app = require('../app')
+
+const api = supertest(app)
 
 const initialPersons = [
   {
@@ -28,14 +32,29 @@ const personsInDb = async () => {
   return persons.map(p => p.toJSON())
 }
 
+const personsInTheirDb = async (userId) => {
+  const persons = await Person.find({ user: { id: userId } })
+  return persons.map(p => p.toJSON())
+}
+
 const usersInDb = async () => {
   const users = await User.find({})
   return users.map(u => u.toJSON())
+}
+
+const loginGetAuthorizationStr = async (loginInfo) => {
+  const userObjectWithToken = await api
+    .post('/api/login')
+    .send(loginInfo)
+  const authorizationStr =  'bearer ' + userObjectWithToken.body.token
+  return authorizationStr
 }
 
 module.exports = {
   initialPersons,
   nonExistingId,
   personsInDb,
+  personsInTheirDb,
   usersInDb,
+  loginGetAuthorizationStr,
 }
