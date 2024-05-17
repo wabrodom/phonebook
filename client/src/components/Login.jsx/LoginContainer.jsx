@@ -1,8 +1,10 @@
 import { useFormik} from 'formik';
 import * as yup from 'yup';
+import { useLoginDispatch } from '../../contexts/LoginContext';
 
+const LoginContainer = () => {
+  const loginUser = useLoginDispatch()
 
-const LoginContainer = ({ onSubmit }) => {
   const initialValues = {
     username: '', 
     password: '' 
@@ -15,11 +17,28 @@ const LoginContainer = ({ onSubmit }) => {
       .required('Password is required')
   });
 
+ 
+  const handleLogin = async ({ username, password }) => {
+    try {
+      const responseBack = (loginUser({username, password}) ) 
+      const resolvetoErrorObject = await responseBack
+      if (resolvetoErrorObject instanceof Error) {
+        throw resolvetoErrorObject
+      }
+
+      console.log('successful login')
+    } catch (err) {
+      console.log('login error')
+    }
+  }
+
   const formik = useFormik({
     initialValues,
     validationSchema,
-    onSubmit,
+    onSubmit: handleLogin,
   });
+
+ 
 
  return (
   <div>
@@ -45,7 +64,7 @@ const LoginContainer = ({ onSubmit }) => {
         )}
       
 
-      <button onClick={formik.handleSubmit}>
+      <button type="button" onClick={formik.handleSubmit}>
           Sign In
       </button> 
   
