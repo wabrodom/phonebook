@@ -13,7 +13,7 @@ const NavigationBar = () => {
   const userLoggedIn = () => {
     return (
       <>
-        <span>User: {user.name} </span>
+        <span>Phonebook for {user.name} </span>
         <button onClick={handleLogout}>log out</button>
       </>
     )

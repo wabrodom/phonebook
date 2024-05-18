@@ -4,7 +4,9 @@ const User = require('../models/user')
 
 usersRouter.get('/', async (_request, response, next) => {
   try {
-    const allUsers = await User.find({}).populate('phonebook', { name: 1, number: 1 })
+    // no populate, not show details for public
+    // const allUsers = await User.find({}).populate('phonebook', { name: 1, number: 1 })
+    const allUsers = await User.find({})
     response.status(200).json(allUsers)
   } catch(exception) {
     next(exception)

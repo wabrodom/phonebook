@@ -1,50 +1,56 @@
-import { useState, useEffect} from "react"
-import phonebookService from "../../services/phonebook"
+import { useCurrentUser, useResetUser } from '../../contexts/LoginContext';
+import phonebookService from '../../services/phonebook'
+import { useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
+import PhoneBookContainer from './PhonebookContainer';
 
+const PhoneBook = () => {
+  const user = useCurrentUser()
+  const queryClient = useQueryClient()
+  const resetUser = useResetUser()
 
+  const bundleGetAll = () => {
+    phonebookService.setToken(user.token)
+    return phonebookService.getAll()
+  }
+  const bundleRemove = (id) => {
+    phonebookService.setToken(user.token)
+    return phonebookService.remove(id)
+  }
+  const result = useQuery({
+    queryKey: ['phonebook'],
+    queryFn:  bundleGetAll
+   })
 
-const PhoneBooks = () => {
-  const [user, setUser] = useState('')
-  const [phonebook, setPhonebook] = useState([])
+   const removeBlogMutataion = useMutation({
+    mutationFn: bundleRemove,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['phonebook']})
+    },
+    onError: (error) => {
+      console.log(error)
+      resetUser()
+    }
+  })
 
-  const getPhoneBook = async () => {
-    const response = await phonebookService.getAll()
-    setPhonebook(response)
+  if (result.isLoading) {
+    return <div>loading data...</div>
   }
 
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBloglistUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      phonebookService.setToken(user.token)
-      setUser(user.name)
-      getPhoneBook()
+  const deleteAPersonInfo = async (id, name) => {
+    if (window.confirm(`You want to remove ${name}`)) {
+      try {
+        removeBlogMutataion.mutate(id)
+      } catch(exception) {
+        // console.log(exception)
+      }
     }
-  }, [])
+  }
 
-
-
-
-  if (!phonebook) return null
-
-
-  console.log(phonebook)
+  const phonebook= result.data
 
   return (
-    <div>
-      <h2>{user} phonebook</h2>
-      <ul>
-        {
-          phonebook.map(obj => 
-            <li key={obj.id}>
-              {obj.name}
-              {obj.number}
-            </li>
-          )
-        }
-      </ul>
-    </div>
+    <PhoneBookContainer phonebook={phonebook} handleDelete={deleteAPersonInfo} />
   )
 }
 
-export default PhoneBooks;
+export default PhoneBook;

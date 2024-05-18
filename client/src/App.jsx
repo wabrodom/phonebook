@@ -1,31 +1,41 @@
-import { useEffect } from "react"
-import LoginForm from "./components/Login.jsx/LoginContainer"
-import NavigationBar from "./components/NavigationBar"
-import { useSetUser } from './contexts/LoginContext'
 
-import phonebookService from "./services/phonebook"
+import { useCurrentUser } from './contexts/LoginContext'
+import NavigationBar from "./components/NavigationBar"
 import PhoneBooks from "./components/Phonebook/Phonebook";
+import AddPerson from './components/Addperson/AddPerson';
+import Login from './components/Login/Login';
+
+import {
+  BrowserRouter as Router,
+  Routes, Route, Navigate, useMatch, useNavigate
+} from 'react-router-dom'
 
 
 const App = () => {
-  const setUser = useSetUser()
-
-
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBloglistUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      phonebookService.setToken(user.token)
-    }
-  }, [])
+  const currentUser = useCurrentUser()
 
   return (
-    <div>
-      <NavigationBar/>
-      <LoginForm />
-      <PhoneBooks />
     
+    <div>
+      <Router>
+        <NavigationBar/>
+
+        <Routes>
+          <Route path='*' element={<Navigate replace to ='/phonebook' />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/phonebook' element={ currentUser
+            ? <>
+                <AddPerson />
+                <PhoneBooks />
+              </>
+            : <Navigate replace to ='/login' />
+            }
+          />
+      
+
+        </Routes>
+
+      </Router>
     </div>
   )
 }

@@ -1,14 +1,13 @@
 import { useFormik} from 'formik';
 import * as yup from 'yup';
-import { useLoginDispatch } from '../../contexts/LoginContext';
+import PropTypes from 'prop-types';
 
-const LoginContainer = () => {
-  const loginUser = useLoginDispatch()
-
+const LoginContainer = ({ handleLogin }) => {
   const initialValues = {
     username: '', 
     password: '' 
   };
+
 
   const validationSchema = yup.object().shape({
     username: yup.string()
@@ -17,33 +16,21 @@ const LoginContainer = () => {
       .required('Password is required')
   });
 
- 
-  const handleLogin = async ({ username, password }) => {
-    try {
-      const responseBack = (loginUser({username, password}) ) 
-      const resolvetoErrorObject = await responseBack
-      if (resolvetoErrorObject instanceof Error) {
-        throw resolvetoErrorObject
-      }
-
-      console.log('successful login')
-    } catch (err) {
-      console.log('login error')
-    }
+  const onSubmit = (values, { resetForm }) => {
+    handleLogin(values)
+    resetForm()
   }
-
+ 
   const formik = useFormik({
     initialValues,
     validationSchema,
-    onSubmit: handleLogin,
+    onSubmit
   });
-
- 
 
  return (
   <div>
     <h1>Log In</h1>
-    <input
+      <input
          placeholder="Username"
          onChange={formik.handleChange('username')}
          value={formik.values.username}
@@ -56,15 +43,13 @@ const LoginContainer = () => {
          placeholder="Password"
          onChange={formik.handleChange('password')}
          value={formik.values.password}
+         type='password'
         //  style={ [styles.input, formik.errors.password && formik.touched.password && styles.error]}
        />
 
-        {formik.touched.password && formik.errors.password && (
-          <span style={{ color: theme.colors.error  }}>{formik.errors.password}</span>
-        )}
-      
+    
 
-      <button type="button" onClick={formik.handleSubmit}>
+      <button type="submit" onClick={formik.handleSubmit}>
           Sign In
       </button> 
   
@@ -74,3 +59,7 @@ const LoginContainer = () => {
 }
 
 export default LoginContainer
+
+LoginContainer.propTypes = {
+  handleLogin: PropTypes.func
+}
