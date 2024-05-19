@@ -10,9 +10,9 @@ const Login = () => {
     const { username, password } = values
     try {
       await loginUser({ username, password })
-      navigate('/')
+      navigate('/phonebook')
     } catch (err) {
-      console.log('login error')
+      // console.log('login error')
     }
   }
 

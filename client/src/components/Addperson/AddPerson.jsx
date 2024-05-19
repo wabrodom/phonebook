@@ -18,8 +18,8 @@ const AddPerson = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['phonebook']})
     },
-    onError: (error) => {
-      console.log(error.message)
+    onError: () => {
+      // console.log(error.message)
       resetUser()
     }
   })

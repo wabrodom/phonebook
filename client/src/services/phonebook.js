@@ -15,6 +15,12 @@ const getAll = () => {
     return request.then(response => response.data) 
 }
 
+const getGeneralInfo = () => {
+    const request = axios.get(`${baseUrl}/info`)
+    return request.then(response => response.data) 
+}
+
+
 const create = async (object) => {
     const config = {
         headers: { Authorization: token }
@@ -43,6 +49,7 @@ const remove = async (id) => {
 }
 
 export default {
+    getGeneralInfo,
     getAll,
     create,
     remove,

@@ -26,8 +26,8 @@ const PhoneBook = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['phonebook']})
     },
-    onError: (error) => {
-      console.log(error)
+    onError: () => {
+      // console.log(error)
       resetUser()
     }
   })

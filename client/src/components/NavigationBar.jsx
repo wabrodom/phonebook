@@ -1,5 +1,5 @@
 import { useCurrentUser,   useResetUser } from "../contexts/LoginContext"
-
+import { Link } from "react-router-dom"
 
 const NavigationBar = () => {
   const user = useCurrentUser()
@@ -13,8 +13,27 @@ const NavigationBar = () => {
   const userLoggedIn = () => {
     return (
       <>
-        <span>Phonebook for {user.name} </span>
+        <Link to='/phonebook'>
+          <button>{user.name} Phonebook</button>
+        </Link>
         <button onClick={handleLogout}>log out</button>
+      </>
+    )
+  }
+
+  const userNotLogIn = () => {
+    return (
+      <>
+        <Link to='/login'>
+            <button>
+              login
+            </button>
+        </Link>
+        <Link to='/signup'>
+            <button>
+              sign up
+            </button>
+        </Link>
       </>
     )
   }
@@ -22,8 +41,15 @@ const NavigationBar = () => {
   return (
     <div>
       <h1>Phone book</h1>
-      {user && 
-        userLoggedIn()
+      <Link to='/'>
+        <button>
+          Home
+        </button>
+      </Link>
+     
+      {user 
+        ? userLoggedIn()
+        : userNotLogIn()
       }
     </div>
   )

@@ -1,8 +1,9 @@
-import { createContext, useReducer, useContext } from "react"
+import { createContext, useContext } from "react"
 import loginService from '../services/login'
 import phonebookService from '../services/phonebook'
 
-const loginReducer = (state, action) => {
+
+export const loginReducer = (state, action) => {
   switch (action.type) {
     case 'LOGIN' : {
       return action.payload
@@ -17,15 +18,6 @@ const loginReducer = (state, action) => {
 }
 const LoginContext = createContext()
 
-export const LoginContextProvider = (props) => {
-  const [user, loginDispatch] = useReducer(loginReducer, null)
-
-  return (
-    <LoginContext.Provider value={[user, loginDispatch]}>
-      {props.children}
-    </LoginContext.Provider>
-  )
-}
 
 export const useCurrentUser = () => {
   return useContext(LoginContext)[0]

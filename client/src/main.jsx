@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './App'
 import './index.css'
 
-import { LoginContextProvider } from './contexts/LoginContext'
+import LoginContextProvider from './contexts/LoginContextProvider'
 
 const queryClient = new QueryClient()
 

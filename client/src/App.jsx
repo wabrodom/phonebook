@@ -7,8 +7,10 @@ import Login from './components/Login/Login';
 
 import {
   BrowserRouter as Router,
-  Routes, Route, Navigate, useMatch, useNavigate
+  Routes, Route, Navigate
 } from 'react-router-dom'
+import GeneralInfo from './components/GeneralInfo';
+import SignUp from './components/SignUp/SignUp';
 
 
 const App = () => {
@@ -21,8 +23,10 @@ const App = () => {
         <NavigationBar/>
 
         <Routes>
-          <Route path='*' element={<Navigate replace to ='/phonebook' />} />
+          <Route path='/' element={<GeneralInfo />} />
+          <Route path='*' element={<Navigate replace to ='/' />} />
           <Route path='/login' element={<Login />} />
+          <Route path='/signup' element={<SignUp />} />
           <Route path='/phonebook' element={ currentUser
             ? <>
                 <AddPerson />
