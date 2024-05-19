@@ -48,4 +48,11 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-
+  hello_world:
+    name:  using action in the same repository
+    runs-on: ubuntu-20.04
+    steps:
+      - name: check out repository
+        uses: actions/checkout@v4
+      - name: use local hello world
+        uses: ./.github/actions/hello_world_action

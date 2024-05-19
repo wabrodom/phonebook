@@ -12,7 +12,7 @@ const bcrypt = require('bcrypt')
 const api = supertest(app)
 
 
-describe('GET request: only the login user will...', () => {
+describe.only('GET request: only the login user will...', () => {
 
   const userLoginInfo = {
     username: 'root',
@@ -69,7 +69,7 @@ describe('GET request: only the login user will...', () => {
   })
 
 
-  test('current user can view their own phonebook list', async () => {
+  test.only('current user can view their own phonebook list', async () => {
     const authorizationStr = await helper.loginGetAuthorizationStr(userLoginInfo)
     const authorization = { Authorization : authorizationStr }
 
@@ -92,12 +92,12 @@ describe('GET request: only the login user will...', () => {
 
     const responseCountDocument  = await api.get('/api/persons/info')
       .expect(200)
+      .expect('Content-Type', /application\/json/)
 
     const returnedPersons = response.body
-    const textCountDocument = responseCountDocument.text
-
-
-    assert.strictEqual(textCountDocument.search(/3 people/) > 0, true)
+    const countObject = responseCountDocument.body
+    // 2 from mockOtherPersonList, and 1 from currentUser and a newPerson
+    assert.strictEqual(countObject.contactPersons, 3)
     assert.strictEqual(returnedPersons.length, 1)
   })
 
@@ -147,7 +147,7 @@ describe('GET request: only the login user will...', () => {
   })
 })
 
-describe.only('when user have valid token or invalid token', () => {
+describe('when user have valid token or invalid token', () => {
   beforeEach( async () => {
     await User.deleteMany({})
     await Person.deleteMany({})
@@ -235,7 +235,7 @@ describe.only('when user have valid token or invalid token', () => {
 
   })
 
-  test.only('can update the document object by created user', async () => {
+  test('can update the document object by created user', async () => {
     const token = await helper.loginGetAuthorizationStr(userLoginInfo)
     const authorization = { Authorization : token }
 

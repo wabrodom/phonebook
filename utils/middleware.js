@@ -18,7 +18,7 @@ const errorHandler = (error, request, response, next) => {
       error: error.message
     })
   }
-  console.info('begin >>', error, '<< end')
+  // console.info('begin >>', error, '<< end')
   next(error)
 }
 
