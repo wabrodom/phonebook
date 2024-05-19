@@ -1,16 +1,19 @@
 const personRouter = require('express').Router()
 const Person = require('../models/person')
+const User = require('../models/user')
 const middleware = require('../utils/middleware')
 
-personRouter.get('/info', (_request, response, next) => {
-  Person.countDocuments({})
-    .then(info => {
-      const personsLength = info
-      const personsLengthText = `<p> Phonebook has info for ${personsLength} people.</p>`
-      const time = `<p>${new Date()}</p>`
-      response.send(`${personsLengthText} ${time}`)
+personRouter.get('/info', async (_request, response, next) => {
+  try {
+    const personsLength = await Person.countDocuments({})
+    const usersLength = await User.countDocuments({})
+    response.status(200).json({
+      user: usersLength,
+      contactPersons: personsLength
     })
-    .catch(error => next(error))
+  } catch(error) {
+    next(error)
+  }
 })
 
 personRouter.get('/', middleware.userExtracter, (request, response, next) => {
