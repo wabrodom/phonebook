@@ -1,7 +1,6 @@
-const { describe, test, expect, beforeEach } = require('@playwright/test')
+const { describe, test, expect, beforeEach, afterEach } = require('@playwright/test')
 
-
-describe('phonebook main navigation', () => {
+describe('phonebook app', () => {
   const loginInfo = {
     username: 'root',
     password: 'somePassword'
@@ -24,22 +23,24 @@ describe('phonebook main navigation', () => {
 
     await page.getByRole('button', { name: 'Log In' }).click()
     await expect(page.getByText(`${loginInfo.username} phonebook`)).toBeVisible()
+    // make sure to log out
+    await page.getByRole('button', { name: 'log out'}).click()
   })
 
 })
 
-describe('add and remove person from phone book', () => {
+describe('when user login add and remove person are possible', () => {
   const loginInfo = {
     username: 'root',
     password: 'somePassword'
   }
-
   const newPerson = {
     name:'joe star',
     number: '02-123456789',
-    note: 'deep talk about jojo season6'
+    note: 'deep talk about jojo seasson6'
   }
-  beforeEach(async (page) => {
+
+  beforeEach(async ({ page }) => {
     await page.goto('/')
 
     await page.getByRole('button', { name: 'log in' }).click()
@@ -49,6 +50,12 @@ describe('add and remove person from phone book', () => {
     await page.getByRole('button', { name: 'Log In' }).click()
   })
 
+  afterEach(async ({ page }) => {
+    // make sure to log out
+    await page.getByRole('button', { name: 'log out'}).click()
+  })
+  
+
   test('login user can add new person to they phonebook',async ({ page }) => {
 
     await page.getByTestId('name').fill(newPerson.name)
@@ -56,6 +63,8 @@ describe('add and remove person from phone book', () => {
 
     await page.getByRole('button', { name: 'Add people' }).click()
     await expect(page.getByText(newPerson.number)).toBeVisible()
+    // // make sure to log out
+    // await page.getByRole('button', { name: 'log out'}).click()
   })
 
   test('login use can remove person from their phonebook', async ({ page }) => {
@@ -64,5 +73,6 @@ describe('add and remove person from phone book', () => {
     page.on('dialog', dialog => dialog.accept())
     await page.getByRole('button', { name: 'OK' }).click()
     await expect(page.getByText(newPerson.name)).toBeVisible()
+
   })
 })
