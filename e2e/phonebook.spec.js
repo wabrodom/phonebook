@@ -1,38 +1,73 @@
 const { describe, test, expect, beforeEach, afterEach } = require('@playwright/test')
 
 describe('phonebook app', () => {
+  beforeEach( async({ page, request }) => {
+    await request.post('/api/testing/reset')
+    await request.post('/api/users', {
+      data: {
+        name: 'root root',
+        username: 'root',
+        password: 'salainen'
+      }
+    })
+
+    await page.goto('/')
+  })
+
   const loginInfo = {
     username: 'root',
-    password: 'somePassword'
+    password: 'salainen'
   }
 
   test('home page can be opened', async ({ page }) => {
-    await page.goto('/')
-
     const locator = page.getByText('Phone book')
     await expect(locator).toBeVisible()
     await expect(page.getByText('people')).toBeVisible()
   })
 
   test('login form can be opened', async ({ page }) => {
-    await page.goto('/')
-
     await page.getByRole('button', { name: 'log in' }).click()
     await page.getByPlaceholder('Username').fill(loginInfo.username)
     await page.getByPlaceholder('Password').fill(loginInfo.password)
 
-    await page.getByRole('button', { name: 'Log In' }).click()
-    await expect(page.getByText(`${loginInfo.username} phonebook`)).toBeVisible()
+    await page.getByTestId('confirmLogin').click()
+    await expect(page.getByText('phonebook')).toBeVisible()
     // make sure to log out
-    await page.getByRole('button', { name: 'log out'}).click()
+    await page.getByRole('button', { name: 'log out' }).click()
   })
 
 })
 
 describe('when user login add and remove person are possible', () => {
+  beforeEach( async({ request }) => {
+    await request.post('/api/testing/reset')
+    await request.post('/api/users', {
+      data: {
+        name: 'root root',
+        username: 'root',
+        password: 'salainen'
+      }
+    })
+  })
+
+  beforeEach(async ({ page }) => {
+    await page.goto('/')
+
+    await page.getByTestId('toLogin').click()
+    await page.getByPlaceholder('Username').fill(loginInfo.username)
+    await page.getByPlaceholder('Password').fill(loginInfo.password)
+
+    await page.getByTestId('confirmLogin').click()
+  })
+
+  afterEach(async ({ page }) => {
+    // make sure to log out
+    await page.getByRole('button', { name: 'log out' }).click()
+  })
+
   const loginInfo = {
     username: 'root',
-    password: 'somePassword'
+    password: 'salainen'
   }
   const newPerson = {
     name:'joe star',
@@ -40,39 +75,26 @@ describe('when user login add and remove person are possible', () => {
     note: 'deep talk about jojo seasson6'
   }
 
-  beforeEach(async ({ page }) => {
-    await page.goto('/')
 
-    await page.getByRole('button', { name: 'log in' }).click()
-    await page.getByPlaceholder('Username').fill(loginInfo.username)
-    await page.getByPlaceholder('Password').fill(loginInfo.password)
-
-    await page.getByRole('button', { name: 'Log In' }).click()
-  })
-
-  afterEach(async ({ page }) => {
-    // make sure to log out
-    await page.getByRole('button', { name: 'log out'}).click()
-  })
-  
-
-  test('login user can add new person to they phonebook',async ({ page }) => {
+  test('login user can add new person to their phonebook',async ({ page }) => {
 
     await page.getByTestId('name').fill(newPerson.name)
     await page.getByTestId('number').fill(newPerson.number)
 
     await page.getByRole('button', { name: 'Add people' }).click()
     await expect(page.getByText(newPerson.number)).toBeVisible()
-    // // make sure to log out
-    // await page.getByRole('button', { name: 'log out'}).click()
   })
 
   test('login use can remove person from their phonebook', async ({ page }) => {
-    page.getByTestId(`delete${newPerson.name}${newPerson.number}`).click()
+    //add one people
+    await page.getByTestId('name').fill(newPerson.name)
+    await page.getByTestId('number').fill(newPerson.number)
+    await page.getByRole('button', { name: 'Add people' }).click()
 
     page.on('dialog', dialog => dialog.accept())
+    await page.getByTestId(`delete${newPerson.name}${newPerson.number}`).click()
     await page.getByRole('button', { name: 'OK' }).click()
-    await expect(page.getByText(newPerson.name)).toBeVisible()
 
+    await expect(page.getByText(newPerson.name)).toHaveCount(0)
   })
 })

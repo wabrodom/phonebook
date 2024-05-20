@@ -25,7 +25,7 @@ const NavigationBar = () => {
     return (
       <>
         <Link to='/login'>
-            <button>
+            <button data-testid='toLogin'>
               log in
             </button>
         </Link>
