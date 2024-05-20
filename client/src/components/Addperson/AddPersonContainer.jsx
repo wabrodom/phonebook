@@ -43,41 +43,44 @@ const AddPersonContainer = ( {handleAddPerson} ) => {
       <div>
         <h3>Add people</h3>
       
+        <form onSubmit={formik.handleSubmit}>       
+            <Input
+              placeholder="name"
+              data-testid='name'
+              onChange={formik.handleChange('name')}
+              value={formik.values.name}
+            />
+              {formik.touched.name && formik.errors.name && (
+                  <span >{formik.errors.name}</span>
+              )}
+
+            <Input
+              placeholder="number"
+              data-testid='number'
+              onChange={formik.handleChange('number')}
+              value={formik.values.number}
+            />
+                {formik.touched.number && formik.errors.number && (
+                <span >{formik.errors.number}</span>
+                )}
+
+            <Input
+              placeholder="note"
+              data-testid='note'
+              onChange={formik.handleChange('note')}
+              value={formik.values.note}
+              //  style={ [styles.input, formik.errors.password && formik.touched.password && styles.error]}
+            />
+                {formik.touched.note && formik.errors.note && (
+                  <span >{formik.errors.note}</span>
+                )}
+            
       
-          
-          <Input
-            placeholder="name"
-            onChange={formik.handleChange('name')}
-            value={formik.values.name}
-          />
-            {formik.touched.name && formik.errors.name && (
-                <span >{formik.errors.name}</span>
-            )}
 
-          <Input
-            placeholder="number"
-            onChange={formik.handleChange('number')}
-            value={formik.values.number}
-          />
-              {formik.touched.number && formik.errors.number && (
-              <span >{formik.errors.number}</span>
-              )}
-
-          <Input
-            placeholder="note"
-            onChange={formik.handleChange('note')}
-            value={formik.values.note}
-            //  style={ [styles.input, formik.errors.password && formik.touched.password && styles.error]}
-          />
-              {formik.touched.note && formik.errors.note && (
-                <span >{formik.errors.note}</span>
-              )}
-          
-    
-
-        <button type="submit" onClick={formik.handleSubmit}>
-            Add people
-        </button> 
+          <button type="submit">
+              Add people
+          </button> 
+        </form>
       </div>
   )
 }

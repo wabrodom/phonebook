@@ -14,7 +14,7 @@ const NavigationBar = () => {
     return (
       <>
         <Link to='/phonebook'>
-          <button>{user.name} Phonebook</button>
+          <button>{user.name} phonebook</button>
         </Link>
         <button onClick={handleLogout}>log out</button>
       </>
@@ -26,7 +26,7 @@ const NavigationBar = () => {
       <>
         <Link to='/login'>
             <button>
-              login
+              log in
             </button>
         </Link>
         <Link to='/signup'>

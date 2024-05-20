@@ -30,7 +30,10 @@ const PhoneBookContainer = ({ phonebook, handleDelete }) => {
                   
                   <p>recent topic: {person.note}</p>
                   <ToTheLeft>
-                    <button onClick={() => removeButtonClick(person.id, person.name)}>
+                    <button 
+                      onClick={() => removeButtonClick(person.id, person.name)}
+                      data-testid={`delete${person.name}${person.number}`}
+                    >
                       🗑
                     </button>
                   </ToTheLeft>

@@ -50,7 +50,7 @@ const LoginContainer = ({ handleLogin }) => {
     
 
       <button type="submit" onClick={formik.handleSubmit}>
-          Sign In
+          Log In
       </button> 
   
 
