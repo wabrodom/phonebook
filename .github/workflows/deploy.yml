@@ -40,13 +40,21 @@ jobs:
 
       - name: Test backend
         run: npm run test
+        env: 
+          TEST_MONGODB_URI: ${{env.TEST_MONGODB_URI}}
+          PORT_FOR_TEST: ${{ env.PORT_FOR_TEST }}
+          SECRET: ${{ env.SECRET}}
 
       - name: Install Playwright chromium Browsers
         run: npx playwright install --with-deps chromium
 
       - name: Test e2e Run Playwright tests on chromium
         run: npx playwright test --project=chromium
-
+        env: 
+          TEST_MONGODB_URI: ${{env.TEST_MONGODB_URI}}
+          PORT_FOR_TEST: ${{ env.PORT_FOR_TEST }}
+          SECRET: ${{ env.SECRET}}
+      
       - uses: actions/upload-artifact@v4
         if: always()
         with:
