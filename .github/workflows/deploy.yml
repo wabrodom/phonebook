@@ -65,9 +65,10 @@ jobs:
       - name: upload build artifacts
         uses: actions/upload-artifact@v4
         with: 
-          name: buill_file
+          name: built_file
           path: dist/
           retention-days: 1
+          overwrite: true
 
   deployment:
     needs: [built_and_test]
@@ -84,7 +85,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: buill_file
+          name: built_file
 
       - name: Check PR_IS_MERGED value. if true should mean the pull is merged
         run: echo "PR_IS_MERGED=${{ env.PR_IS_MERGED }}"
