@@ -62,16 +62,19 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-      - name: use GitHub Action for flyctl 
-        if: ${{ env.PR_IS_MERGED }}
-        uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Check PR_IS_MERGED value. if true should mean the pull is merged
+        run: echo "PR_IS_MERGED=${{ env.PR_IS_MERGED }}"
+
+      # - name: use GitHub Action for flyctl 
+      #   if: ${{ env.PR_IS_MERGED }}
+      #   uses: superfly/flyctl-actions/setup-flyctl@master
 
       
-      - name: Deploy to Fly.io
-        if: ${{ env.PR_IS_MERGED }}
-        run: flyctl deploy --remote-only
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      # - name: Deploy to Fly.io
+      #   if: ${{ env.PR_IS_MERGED }}
+      #   run: flyctl deploy --remote-only
+      #   env:
+      #     FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
   tag_release:
     needs: [deployment_pipeline]
