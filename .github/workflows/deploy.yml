@@ -62,13 +62,13 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-      - name: upload build artifacts
-        uses: actions/upload-artifact@v4
-        with: 
-          name: built_file
-          path: dist/
-          retention-days: 1
-          overwrite: true
+      # - name: upload build artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with: 
+      #     name: built_file
+      #     path: dist/
+      #     retention-days: 1
+      #     overwrite: true
 
   deployment:
     needs: [built_and_test]
