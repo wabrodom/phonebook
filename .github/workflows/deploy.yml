@@ -130,7 +130,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
 
-
   hello_world:
     needs: [tag_release]
     if: needs.tag_release.result == 'success'
