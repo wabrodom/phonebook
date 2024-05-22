@@ -124,7 +124,7 @@ jobs:
           fetch-depth: '0'
 
       - name: Bump version and push tag
-        if: ${{ env.PR_IS_MERGED == true && !contains(join(github.event.commits.*.message), '#skip') }}
+        if: ${{ github.event_name == 'push'&& !contains(join(github.event.commits.*.message), '#skip') }}
         uses: anothrNick/github-tag-action@a2c70ae13a881faf2b4953baaa9e49731997ab36
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
