@@ -3,14 +3,16 @@ description: 'deploy and versioning successful'
 
 runs:
   using: "composite"
-  shell: bash
   steps:
     - name: Say hello
+      shell: bash
       run: |
         echo "Hello World! I deploy with new version"
     
     - name: Now it is
+      shell: bash
       run: date
       
     - name: Directory content
+      shell: bash
       run: ls -l
