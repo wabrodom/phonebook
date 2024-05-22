@@ -78,7 +78,7 @@ jobs:
 
   tag_release:
     needs: [deployment_pipeline]
-    if: needs.deployment_pipeline.result == 'success'
+    if: needs.deployment_pipeline.result == 'success' && env.PR_IS_MERGED == true && !contains(join(github.event.commits.*.message), '#skip')
     runs-on: ubuntu-20.04
     permissions:
       contents: write
@@ -89,7 +89,7 @@ jobs:
           fetch-depth: '0'
 
       - name: Bump version and push tag
-        if: ${{ env.PR_IS_MERGED == true && !contains(join(github.event.commits.*.message), '#skip') }}
+        # if: ${{ env.PR_IS_MERGED == true && !contains(join(github.event.commits.*.message), '#skip') }}
         uses: anothrNick/github-tag-action@a2c70ae13a881faf2b4953baaa9e49731997ab36
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
