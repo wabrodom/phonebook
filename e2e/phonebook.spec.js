@@ -90,10 +90,11 @@ describe('when user login add and remove person are possible', () => {
     await page.getByTestId('name').fill(newPerson.name)
     await page.getByTestId('number').fill(newPerson.number)
     await page.getByRole('button', { name: 'Add people' }).click()
+    await expect(page.getByText(newPerson.name)).toBeVisible()
 
     page.on('dialog', dialog => dialog.accept())
     await page.getByTestId(`delete${newPerson.name}${newPerson.number}`).click()
-    await page.getByRole('button', { name: 'OK' }).click()
+    await page.getByRole('button', { name: 'ok' }).click()
 
     await expect(page.getByText(newPerson.name)).toHaveCount(0)
   })

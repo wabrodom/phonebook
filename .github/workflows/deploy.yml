@@ -1,9 +1,9 @@
 name:  Deployment pipeline
 
 on: 
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
   pull_request:
     branches: [main]
     types: [opened, synchronize]
@@ -14,17 +14,18 @@ env:
 jobs:
   deployment_pipeline:
     name: Deploy app
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     concurrency: deploy-group    # optional: ensure only one action runs at a time
+    env:
+      TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+      SECRET: ${{ secrets.SECRET}}
+      PORT_FOR_TEST: ${{ secrets.PORT_FOR_TEST }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: 
           node-version: '20'
-      - name: github have my context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-          run: echo "$GITHUB_CONTEXT"
+
       - name: Install dependencies
         run: |
           npm ci
@@ -39,13 +40,21 @@ jobs:
 
       - name: Test backend
         run: npm run test
+        env: 
+          TEST_MONGODB_URI: ${{env.TEST_MONGODB_URI}}
+          PORT_FOR_TEST: ${{ env.PORT_FOR_TEST }}
+          SECRET: ${{ env.SECRET}}
 
       - name: Install Playwright chromium Browsers
         run: npx playwright install --with-deps chromium
 
       - name: Test e2e Run Playwright tests on chromium
         run: npx playwright test --project=chromium
-
+        env: 
+          TEST_MONGODB_URI: ${{env.TEST_MONGODB_URI}}
+          PORT_FOR_TEST: ${{ env.PORT_FOR_TEST }}
+          SECRET: ${{ env.SECRET}}
+      
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -53,16 +62,19 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-      - name: use GitHub Action for flyctl 
-        if: ${{ env.PR_IS_MERGED }}
-        uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Check PR_IS_MERGED value. if true should mean the pull is merged
+        run: echo "PR_IS_MERGED=${{ env.PR_IS_MERGED }}"
+
+      # - name: use GitHub Action for flyctl 
+      #   if: ${{ env.PR_IS_MERGED }}
+      #   uses: superfly/flyctl-actions/setup-flyctl@master
 
       
-      - name: Deploy to Fly.io
-        if: ${{ env.PR_IS_MERGED }}
-        run: flyctl deploy --remote-only
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      # - name: Deploy to Fly.io
+      #   if: ${{ env.PR_IS_MERGED }}
+      #   run: flyctl deploy --remote-only
+      #   env:
+      #     FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
   tag_release:
     needs: [deployment_pipeline]
