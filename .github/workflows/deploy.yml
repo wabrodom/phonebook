@@ -78,6 +78,7 @@ jobs:
 
   tag_release:
     needs: [deployment_pipeline]
+    if: needs.deployment_pipeline.result == 'success'
     runs-on: ubuntu-20.04
     permissions:
       contents: write
@@ -97,6 +98,7 @@ jobs:
 
   hello_world:
     needs: [deployment_pipeline, tag_release]
+    if: needs.deployment_pipeline.result == 'success' && needs.tag_release.result == 'success'
     name:  using action in the same repository
     runs-on: ubuntu-20.04
     steps:

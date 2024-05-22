@@ -3,6 +3,7 @@ description: 'deploy and versioning successful'
 
 runs:
   using: "composite"
+  shell: bash
   steps:
     - name: Say hello
       run: |
