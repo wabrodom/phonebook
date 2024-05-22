@@ -129,7 +129,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
-          PR_IS_MERGED: ${{env.PR_IS_MERGED}}
 
   hello_world:
     needs: [tag_release]
