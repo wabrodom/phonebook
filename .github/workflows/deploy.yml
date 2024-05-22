@@ -1,9 +1,9 @@
 name:  Deployment pipeline
 
 on: 
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
   pull_request:
     branches: [main]
     types: [opened, synchronize]
@@ -12,19 +12,20 @@ env:
   PR_IS_MERGED: ${{ github.event_name == 'push' }}
 
 jobs:
-  deployment_pipeline:
-    name: Deploy app
-    runs-on: ubuntu-20.04
+  built_and_test:
+    name: build and test
+    runs-on: ubuntu-latest
     concurrency: deploy-group    # optional: ensure only one action runs at a time
+    env:
+      TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+      SECRET: ${{ secrets.SECRET}}
+      PORT_FOR_TEST: ${{ secrets.PORT_FOR_TEST }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: 
           node-version: '20'
-      - name: github have my context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-          run: echo "$GITHUB_CONTEXT"
+
       - name: Install dependencies
         run: |
           npm ci
@@ -39,13 +40,21 @@ jobs:
 
       - name: Test backend
         run: npm run test
+        env: 
+          TEST_MONGODB_URI: ${{env.TEST_MONGODB_URI}}
+          PORT_FOR_TEST: ${{ env.PORT_FOR_TEST }}
+          SECRET: ${{ env.SECRET}}
 
       - name: Install Playwright chromium Browsers
         run: npx playwright install --with-deps chromium
 
       - name: Test e2e Run Playwright tests on chromium
         run: npx playwright test --project=chromium
-
+        env: 
+          TEST_MONGODB_URI: ${{env.TEST_MONGODB_URI}}
+          PORT_FOR_TEST: ${{ env.PORT_FOR_TEST }}
+          SECRET: ${{ env.SECRET}}
+      
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -53,19 +62,48 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
+      - name: upload build artifacts
+        uses: actions/upload-artifact@v4
+        with: 
+          name: built_file
+          path: dist/
+          retention-days: 1
+          overwrite: true
+
+  deployment:
+    needs: [built_and_test]
+    if: ${{ needs.built_and_test.result == 'success' && github.event_name == 'push'}}
+    name: Deploy app
+    runs-on: ubuntu-latest
+    concurrency: deploy-group    # optional: ensure only one action runs at a time
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: 
+          node-version: '20'
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: built_file
+
+      - name: Check PR_IS_MERGED value. if true should mean the pull is merged
+        run: echo "PR_IS_MERGED=${{ env.PR_IS_MERGED }}"
+
       - name: use GitHub Action for flyctl 
-        if: ${{ env.PR_IS_MERGED }}
+        if: ${{ env.PR_IS_MERGED == true }}
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       
       - name: Deploy to Fly.io
-        if: ${{ env.PR_IS_MERGED }}
+        if: ${{ env.PR_IS_MERGED == true }}
         run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
   tag_release:
-    needs: [deployment_pipeline]
+    needs: [built_and_test, deployment]
+    if: needs.built_and_test.result == 'success' && needs.deployment.result == 'success'
     runs-on: ubuntu-20.04
     permissions:
       contents: write
@@ -76,7 +114,7 @@ jobs:
           fetch-depth: '0'
 
       - name: Bump version and push tag
-        if: ${{ env.PR_IS_MERGED && !contains(join(github.event.commits.*.message), '#skip') }}
+        if: ${{ env.PR_IS_MERGED == true && !contains(join(github.event.commits.*.message), '#skip') }}
         uses: anothrNick/github-tag-action@a2c70ae13a881faf2b4953baaa9e49731997ab36
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -84,7 +122,8 @@ jobs:
 
 
   hello_world:
-    needs: [deployment_pipeline, tag_release]
+    needs: [tag_release]
+    if: needs.tag_release.result == 'success'
     name:  using action in the same repository
     runs-on: ubuntu-20.04
     steps:
